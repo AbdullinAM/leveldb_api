@@ -1,4 +1,4 @@
-#include "Database.hpp"
+#include "Database.h"
 
 int main() {
     storage::Database db("./testbase");
