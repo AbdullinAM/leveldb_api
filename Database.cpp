@@ -7,7 +7,6 @@
 namespace storage {
 
 Database::Database(const std::string& path) {
-    using namespace leveldb;
     Options options;
     options.create_if_missing = true;
     options.compression = kNoCompression;
