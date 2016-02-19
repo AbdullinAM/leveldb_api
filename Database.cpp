@@ -12,19 +12,20 @@ Database::Database(const std::string &path) {
     options.compression = kNoCompression;
 
     DB* cfg;
+    logger_.print("Open database:" + path);
     Status status = DB::Open(options, path, &cfg);
     if (not status.ok()) {
-        std::cout << "Error opening database " << status.ToString() << std::endl;
+        logger_.print(status.ToString());
         exit(1);
     }
     db_.reset(cfg);
 }
 
 bool Database::put(std::string& key, Value value) {
-    const auto status = db_->Put(WriteOptions(), Slice(key), Slice(value.data(), value.size()));
+    Status status = db_->Put(WriteOptions(), Slice(key), Slice(value.data(), value.size()));
 
     if (not status.ok()) {
-        std::cout << "Error while putting:" << status.ToString() << std::endl;
+        logger_.print(status.ToString());
     }
 
     return status.ok();
@@ -55,7 +56,7 @@ void Database::Iterator::next() {
 }
 
 bool Database::Iterator::valid() const {
-    if (it_) return false;
+    if (not it_) return false;
 
     const Slice limit(limit_);
 

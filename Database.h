@@ -5,12 +5,12 @@
 #ifndef LEVELDB_API_DATABASE_H
 #define LEVELDB_API_DATABASE_H
 
-#include <string>
 #include <memory>
-#include <iostream>
 
 #include "leveldb/db.h"
 #include "leveldb/comparator.h"
+
+#include "Logger.h"
 
 using namespace leveldb;
 
@@ -34,6 +34,7 @@ public:
 private:
 
     std::shared_ptr<leveldb::DB> db_;
+    storage::Logger logger_;
 
 };
 
