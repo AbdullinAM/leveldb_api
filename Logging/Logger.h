@@ -10,14 +10,14 @@
 #include <iostream>
 #include <ctime>
 
-namespace storage {
+namespace logging {
 
 class Logger {
 
 public:
 
     Logger() {
-        logstream.open("./leveldb-wrapper.log", std::ios::app);
+        logstream.open("leveldb-wrapper.log", std::ios::app);
     }
 
     Logger(const std::string& logfile) {
@@ -31,7 +31,7 @@ public:
         logstream << messg << std::endl;
     }
 
-    void print(const char*& messg) {
+    void print(const char* messg) {
         time_t timev;
         time(&timev);
         printTime(timev);
@@ -60,6 +60,6 @@ private:
 
 };
 
-}   /* namespace storage */
+}   /* namespace logging */
 
 #endif //LEVELDB_API_LOGGER_H

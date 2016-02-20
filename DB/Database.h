@@ -10,7 +10,7 @@
 #include "leveldb/db.h"
 #include "leveldb/comparator.h"
 
-#include "Logger.h"
+#include "Logging/Logger.h"
 
 using namespace leveldb;
 
@@ -34,7 +34,7 @@ public:
 private:
 
     std::shared_ptr<leveldb::DB> db_;
-    storage::Logger logger_;
+    logging::Logger logger_;
 
 };
 
