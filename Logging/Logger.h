@@ -38,6 +38,13 @@ public:
         logstream << messg << std::endl;
     }
 
+    void print(const int messg) {
+        time_t timev;
+        time(&timev);
+        printTime(timev);
+        logstream << messg << std::endl;
+    }
+
     ~Logger() {
         logstream.close();
     }
