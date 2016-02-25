@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.3)
 
 include_directories(./ ../)
 include_directories(/usr/include/leveldb)
-include_directories(libsocket)
+include_directories(libsocket/headers)
 add_subdirectory(libsocket)
 link_directories(libsocket/C++/)
 
