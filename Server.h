@@ -7,6 +7,7 @@
 
 #include <libsocket/headers/unixserverstream.hpp>
 #include "Database.h"
+#include "Logger.h"
 
 namespace storage {
 

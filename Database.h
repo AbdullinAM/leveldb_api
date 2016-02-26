@@ -6,9 +6,10 @@
 #define LEVELDB_API_DATABASE_H
 
 #include <memory>
+#include <string>
 
-#include "leveldb/db.h"
-#include "leveldb/comparator.h"
+#include <leveldb/db.h>
+#include <leveldb/comparator.h>
 
 #include "Logger.h"
 
