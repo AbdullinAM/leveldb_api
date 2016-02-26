@@ -17,7 +17,7 @@ class Logger {
 public:
 
     Logger() {
-        logstream.open("leveldb-wrapper.log", std::ios::app);
+        logstream.open("leveldb-api.log", std::ios::app);
     }
 
     Logger(const std::string& logfile) {
