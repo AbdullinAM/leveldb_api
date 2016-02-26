@@ -29,9 +29,14 @@ int Server::work() {
             libsocket::unix_stream_client* client;
             client = server_.accept();
 
-            if (client) {
+            while (true) {
                 op.resize(3);
                 *client >> op;
+
+                if (op == "end") {
+                    delete client;
+                    break;
+                }
 
                 int recv_key_size = client->rcv(buffer_, BUF_SIZE);
                 key_size = atoi(buffer_);
@@ -40,9 +45,7 @@ int Server::work() {
                 key.resize(key_size);
                 *client >> key;
 
-                if (op == "end") {
-                    delete client;
-                } else if (op == "put") {
+                if (op == "put") {
                     int recv_data_size = client->rcv(buffer_, BUF_SIZE);
                     data_size = atoi(buffer_);
                     memset(buffer_, 0, recv_data_size);
@@ -56,15 +59,13 @@ int Server::work() {
                     memset(buffer_, 0, data_size);
 
                 } else if (op == "get") {
-                    auto&& it = db_.get(key, key);
+                    auto &&it = db_.get(key, key);
                     while (it.valid()) {
                         client->snd(it.value().data(), it.value().size());
                         it.next();
                     }
+                    client->snd("end", 3);
                 }
-            } else {
-                log_.print("Error: server.accept() returned nullptr");
-                delete client;
             }
         } catch (const libsocket::socket_exception& ex) {
             log_.print(ex.mesg);

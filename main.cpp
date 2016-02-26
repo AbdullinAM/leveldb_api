@@ -6,7 +6,6 @@
 
 #include "Server.h"
 
-
 int workProcess() {
     storage::Server server;
     server.work();
@@ -17,7 +16,6 @@ int workProcess() {
 
 int monitorProcess() {
     int pid, retval;
-    bool need_start = true;
     sigset_t sigset;
     siginfo_t siginfo;
     logging::Logger log;
@@ -30,14 +28,9 @@ int monitorProcess() {
 
     sigprocmask(SIG_BLOCK, &sigset, NULL);
 
-    // бесконечный цикл работы
     while(true) {
 
-        if (need_start) {
-            pid = fork();
-        }
-
-        need_start = true;
+        pid = fork();
 
         if (pid == -1) {
             log.print("[MONITOR] Fork failed \n");
@@ -49,9 +42,8 @@ int monitorProcess() {
 
             if (siginfo.si_signo == SIGCHLD) {
                 wait(&retval);
-                need_start = true;
             } else {
-                kill(pid, SIGTERM);
+                kill(pid, SIGKILL);
                 retval = 0;
                 break;
             }
@@ -82,6 +74,5 @@ int main() {
         int status = monitorProcess();
 
         return status;
-    }
-    else*/ return 0;
+    } else*/ return 0;
 }
