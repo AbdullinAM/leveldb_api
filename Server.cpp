@@ -60,6 +60,9 @@ int Server::work() {
 
                     if (not db_.put(key, data)) {
                         log_.print("Error while putting data into db with key: " + key);
+                        client->snd("nok", 3);
+                    } else {
+                        client->snd("ok_", 3);
                     }
                     memset(buffer_, 0, data_size);
 
