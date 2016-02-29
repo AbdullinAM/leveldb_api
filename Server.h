@@ -21,16 +21,22 @@ public:
     const std::string SOCKET_NAME = "/tmp/test_server_socket.soc";
     static const int BUF_SIZE = 64 * 1024;
     static const int WIDTH = 8;
+    static const int CMD_LENGTH = 3;
 
     Server();
 
     ~Server();
 
     int work();
-
     void destroy();
 
 private:
+
+    std::string putCmd() const      { return "put"; }
+    std::string getCmd() const      { return "get"; }
+    std::string endCmd() const      { return "end"; }
+    std::string succeedCmd() const  { return "ok_"; }
+    std::string failCmd() const     { return "nok"; }
 
     std::string intToHexString(const int num, unsigned width = WIDTH);
     int hexStringToInt(const char *str);

@@ -34,10 +34,10 @@ int Server::work() {
             client = server_.accept();
 
             while (true) {
-                op.resize(3);
+                op.resize(CMD_LENGTH);
                 *client >> op;
 
-                if (op == "end") {
+                if (op == endCmd()) {
                     client->shutdown();
                     delete client;
                     break;
@@ -50,7 +50,7 @@ int Server::work() {
                 key.resize(key_size);
                 *client >> key;
 
-                if (op == "put") {
+                if (op == putCmd()) {
                     auto recv_data_size = client->rcv(buffer_, WIDTH);
                     data_size = hexStringToInt(buffer_);
                     memset(buffer_, 0, recv_data_size);
@@ -60,13 +60,13 @@ int Server::work() {
 
                     if (not db_.put(key, data)) {
                         log_.print("Error while putting data into db with key: " + key);
-                        client->snd("nok", 3);
+                        client->snd(failCmd().c_str(), CMD_LENGTH);
                     } else {
-                        client->snd("ok_", 3);
+                        client->snd(succeedCmd().c_str(), CMD_LENGTH);
                     }
                     memset(buffer_, 0, data_size);
 
-                } else if (op == "get") {
+                } else if (op == getCmd()) {
                     auto&& it = db_.get(key);
                     while (it.valid()) {
                         auto&& size = intToHexString(it.value().size());
@@ -74,9 +74,9 @@ int Server::work() {
                         client->snd(it.value().data(), it.value().size());
                         it.next();
                     }
-                    auto&& size = intToHexString(3);
+                    auto&& size = intToHexString(CMD_LENGTH);
                     client->snd(size.c_str(), size.length());
-                    client->snd("end", 3);
+                    client->snd(endCmd().c_str(), CMD_LENGTH);
                 }
             }
         } catch (const libsocket::socket_exception& ex) {
