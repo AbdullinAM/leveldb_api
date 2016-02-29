@@ -45,7 +45,8 @@ int Server::work() {
                 std::string keySizeStr;
                 keySizeStr.resize(WIDTH);
                 *client >> keySizeStr;
-                auto keySize = hexStringToInt(buffer_);
+                auto keySize = hexStringToInt(keySizeStr);
+
                 key.resize(keySize);
                 *client >> key;
 
@@ -101,7 +102,7 @@ std::string Server::intToHexString(const int num, const size_t width) {
     return res;
 }
 
-int Server::hexStringToInt(const char* str) {
+int Server::hexStringToInt(const std::string& str) {
     std::stringstream stream;
     stream << str;
     int num;

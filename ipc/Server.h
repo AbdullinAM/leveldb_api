@@ -38,7 +38,7 @@ private:
     std::string failCmd() const     { return "nok"; }
 
     std::string intToHexString(const int num, const size_t width = WIDTH);
-    int hexStringToInt(const char *str);
+    int hexStringToInt(const std::string& str);
     void resizeBuffer(size_t size);
 
 private:
