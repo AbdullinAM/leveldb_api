@@ -27,7 +27,6 @@ void Server::destroy() {
 int Server::work() {
     while (true) {
         std::string op, key;
-        int key_size, data_size, recv_size;
 
         try {
             libsocket::unix_stream_client* client;
@@ -43,26 +42,22 @@ int Server::work() {
                     break;
                 }
 
-                recv_size = client->rcv(buffer_, WIDTH);
-                if (recv_size > DEFAULT_BUF_SIZE) resizeBuffer(recv_size);
-
-                key_size = hexStringToInt(buffer_);
-                memset(buffer_, 0, recv_size);
-
-                key.resize(key_size);
+                std::string keySizeStr;
+                keySizeStr.resize(WIDTH);
+                *client >> keySizeStr;
+                auto keySize = hexStringToInt(buffer_);
+                key.resize(keySize);
                 *client >> key;
 
                 if (op == putCmd()) {
-                    recv_size = client->rcv(buffer_, WIDTH);
-                    if (recv_size > DEFAULT_BUF_SIZE) resizeBuffer(recv_size);
+                    std::string dataSizeStr;
+                    dataSizeStr.resize(WIDTH);
+                    *client >> dataSizeStr;
+                    auto dataSize = hexStringToInt(buffer_);
+                    auto recvSize = client->rcv(buffer_, dataSize);
+                    if (recvSize > DEFAULT_BUF_SIZE) resizeBuffer(recvSize);
 
-                    data_size = hexStringToInt(buffer_);
-                    memset(buffer_, 0, recv_size);
-
-                    recv_size = client->rcv(buffer_, data_size);
-                    if (recv_size > DEFAULT_BUF_SIZE) resizeBuffer(recv_size);
-
-                    leveldb::Slice data(buffer_, data_size);
+                    leveldb::Slice data(buffer_, dataSize);
 
                     if (not db_.put(key, data)) {
                         log_.print("Error while putting data into db with key: " + key);
@@ -70,7 +65,7 @@ int Server::work() {
                     } else {
                         client->snd(succeedCmd().c_str(), CMD_LENGTH);
                     }
-                    memset(buffer_, 0, data_size);
+                    memset(buffer_, 0, dataSize);
 
                 } else if (op == getCmd()) {
                     auto&& it = db_.get(key);
@@ -91,7 +86,7 @@ int Server::work() {
     }
 }
 
-std::string Server::intToHexString(const int num, size_t width) {
+std::string Server::intToHexString(const int num, const size_t width) {
     std::string res;
     std::stringstream stream;
     stream << std::hex << num;

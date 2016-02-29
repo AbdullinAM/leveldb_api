@@ -7,8 +7,8 @@
 
 #include <libsocket/headers/unixserverstream.hpp>
 
-#include "Database.h"
-#include "Logger.h"
+#include "storage/Database.h"
+#include "logging/Logger.h"
 
 namespace leveldb_daemon {
 namespace ipc {
@@ -24,7 +24,6 @@ public:
     static const size_t CMD_LENGTH = 3;
 
     Server();
-
     ~Server();
 
     int work();
@@ -38,7 +37,7 @@ private:
     std::string succeedCmd() const  { return "ok_"; }
     std::string failCmd() const     { return "nok"; }
 
-    std::string intToHexString(const int num, size_t width = WIDTH);
+    std::string intToHexString(const int num, const size_t width = WIDTH);
     int hexStringToInt(const char *str);
     void resizeBuffer(size_t size);
 

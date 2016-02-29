@@ -4,7 +4,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "Server.h"
+#include "ipc/Server.h"
 
 int workProcess() {
     leveldb_daemon::ipc::Server server;

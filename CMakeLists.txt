@@ -10,9 +10,10 @@ project(leveldb_api)
 
 set(SOURCE_FILES
         main.cpp
-        Database.cpp
-        Server.cpp
-        Logger.h)
+        storage/Database.cpp
+        ipc/Server.cpp
+        ipc/Client.cpp
+        logging/Logger.h)
 
 add_executable(leveldb_api ${SOURCE_FILES})
 
@@ -24,7 +25,7 @@ target_link_libraries(leveldb_api leveldb)
 
 project(client)
 
-add_executable(client client.cpp)
+add_executable(client client.cpp ipc/Client.cpp)
 
 add_dependencies(client socket++)
 
