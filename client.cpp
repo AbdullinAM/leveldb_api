@@ -9,17 +9,19 @@ int main() {
 
     string path = "/tmp/test_server_socket.soc";
 
-    leveldb_daemon::ipc::Client client(path);
+    while(true) {
+        leveldb_daemon::ipc::Client client(path);
 
-    client.put("datakey", "lol1", 4);
-    client.put("datakey2", "lol2", 4);
+        client.put("datakey", "lol1", 4);
+        client.put("datakey2", "lol2", 4);
 
-    auto&& res = client.get("datakey");
+        auto &&res = client.get("datakey");
 
-    if (res.empty()) std::cout << "empty" << std::endl;
+        for (auto&& it: res) {
+            delete it.first;
+        }
 
-    for (auto&& it : res) {
-        std::cout << it.first << std::endl;
+        std::cout << "finish" << std::endl;
     }
 
     return 0;

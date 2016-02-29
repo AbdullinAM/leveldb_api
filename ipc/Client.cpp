@@ -74,6 +74,7 @@ bool Client::put(const std::string& key, char* data, size_t size) {
 }
 
 void Client::close() {
+    client_ << endCmd();
     client_.shutdown();
     client_.destroy();
 }
