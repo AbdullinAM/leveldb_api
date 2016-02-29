@@ -17,13 +17,15 @@ class Server {
 
 public:
 
-    const std::string DB_NAME = "/tmp/testbase";
-    const std::string SOCKET_NAME = "/tmp/test_server_socket.soc";
+    const std::string DEFAULT_DB_NAME = "/tmp/leveldb-testbase";
+    const std::string DEFAULT_SOCKET_NAME = "/tmp/leveldb-test-server-socket.soc";
     static const size_t DEFAULT_BUF_SIZE = 64 * 1024;
     static const size_t WIDTH = 8;
     static const size_t CMD_LENGTH = 3;
 
     Server();
+    Server(const std::string& dbName, const std::string& socketName);
+    Server(const std::string& dbName, const std::string& socketName, const size_t bufferSize);
     ~Server();
 
     int work();
@@ -34,7 +36,7 @@ private:
     std::string putCmd() const      { return "put"; }
     std::string getCmd() const      { return "get"; }
     std::string endCmd() const      { return "end"; }
-    std::string succeedCmd() const  { return "ok_"; }
+    std::string successCmd() const  { return "ok_"; }
     std::string failCmd() const     { return "nok"; }
 
     std::string intToHexString(const int num, const size_t width = WIDTH);

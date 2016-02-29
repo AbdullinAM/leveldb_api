@@ -36,7 +36,7 @@ private:
     std::string putCmd() const      { return "put"; }
     std::string getCmd() const      { return "get"; }
     std::string endCmd() const      { return "end"; }
-    std::string succeedCmd() const  { return "ok_"; }
+    std::string successCmd() const  { return "ok_"; }
     std::string failCmd() const     { return "nok"; }
 
     std::string intToHexString(const int num, const size_t width = WIDTH);

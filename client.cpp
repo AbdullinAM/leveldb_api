@@ -1,27 +1,27 @@
 //
 // Created by abdullin on 2/26/16.
 //
-# include <iostream>
-#include <ipc/Client.h>
+#include <iostream>
+#include "ipc/Client.h"
 
 int main() {
     using std::string;
 
-    string path = "/tmp/test_server_socket.soc";
+    string path = "/tmp/leveldb-test-server-socket.soc";
 
-    while(true) {
-        leveldb_daemon::ipc::Client client(path);
+    leveldb_daemon::ipc::Client client(path);
 
-        client.put("datakey", "lol1", 4);
-        client.put("datakey2", "lol2", 4);
+    client.put("datakey", "lol1", 4);
+    client.put("datakey2", "lol2", 4);
 
-        auto &&res = client.get("datakey");
+    auto &&res = client.get("datakey");
 
-        for (auto&& it: res) {
-            delete it.first;
-        }
+    for (auto &&it: res) {
+        std::cout << it.first << std::endl;
+    }
 
-        std::cout << "finish" << std::endl;
+    for (auto&& it: res) {
+        delete it.first;
     }
 
     return 0;

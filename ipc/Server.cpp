@@ -10,7 +10,19 @@
 namespace leveldb_daemon {
 namespace ipc {
 
-Server::Server() : db_(DB_NAME), server_(SOCKET_NAME), buf_size_(DEFAULT_BUF_SIZE) {
+Server::Server() : db_(DEFAULT_DB_NAME), server_(DEFAULT_SOCKET_NAME), buf_size_(DEFAULT_BUF_SIZE) {
+    buffer_ = new char[buf_size_];
+    memset(buffer_, 0, buf_size_);
+}
+
+Server::Server(const std::string &dbName, const std::string &socketName)
+        : db_(dbName), server_(socketName), buf_size_(DEFAULT_BUF_SIZE) {
+    buffer_ = new char[buf_size_];
+    memset(buffer_, 0, buf_size_);
+}
+
+Server::Server(const std::string &dbName, const std::string &socketName, const size_t bufferSize)
+        : db_(dbName), server_(socketName), buf_size_(bufferSize) {
     buffer_ = new char[buf_size_];
     memset(buffer_, 0, buf_size_);
 }
@@ -26,13 +38,13 @@ void Server::destroy() {
 
 int Server::work() {
     while (true) {
-        std::string op, key;
 
         try {
             libsocket::unix_stream_client* client;
             client = server_.accept();
 
             while (true) {
+                std::string op;
                 op.resize(CMD_LENGTH);
                 *client >> op;
 
@@ -46,7 +58,7 @@ int Server::work() {
                 keySizeStr.resize(WIDTH);
                 *client >> keySizeStr;
                 auto keySize = hexStringToInt(keySizeStr);
-
+                std::string key;
                 key.resize(keySize);
                 *client >> key;
 
@@ -64,7 +76,7 @@ int Server::work() {
                         log_.print("Error while putting data into db with key: " + key);
                         client->snd(failCmd().c_str(), CMD_LENGTH);
                     } else {
-                        client->snd(succeedCmd().c_str(), CMD_LENGTH);
+                        client->snd(successCmd().c_str(), CMD_LENGTH);
                     }
                     memset(buffer_, 0, dataSize);
 

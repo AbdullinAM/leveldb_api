@@ -70,7 +70,7 @@ bool Client::put(const std::string& key, char* data, size_t size) {
         log_.print(exc.mesg);
     }
 
-    return result == succeedCmd();
+    return result == successCmd();
 }
 
 void Client::close() {
