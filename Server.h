@@ -19,9 +19,9 @@ public:
 
     const std::string DB_NAME = "/tmp/testbase";
     const std::string SOCKET_NAME = "/tmp/test_server_socket.soc";
-    static const int BUF_SIZE = 64 * 1024;
-    static const int WIDTH = 8;
-    static const int CMD_LENGTH = 3;
+    static const size_t DEFAULT_BUF_SIZE = 64 * 1024;
+    static const size_t WIDTH = 8;
+    static const size_t CMD_LENGTH = 3;
 
     Server();
 
@@ -38,13 +38,17 @@ private:
     std::string succeedCmd() const  { return "ok_"; }
     std::string failCmd() const     { return "nok"; }
 
-    std::string intToHexString(const int num, unsigned width = WIDTH);
+    std::string intToHexString(const int num, size_t width = WIDTH);
     int hexStringToInt(const char *str);
+    void resizeBuffer(size_t size);
+
+private:
 
     storage::Database db_;
     libsocket::unix_stream_server server_;
     logging::Logger log_;
-    char *buffer_;
+    char* buffer_;
+    size_t buf_size_;
 
 };
 

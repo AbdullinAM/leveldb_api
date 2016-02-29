@@ -41,6 +41,7 @@ int main() {
             }
             sock.snd("end", 3);
             sock.shutdown();
+            sleep(1);
         }
     } catch (const libsocket::socket_exception& exc) {
         std::cerr << exc.mesg;
