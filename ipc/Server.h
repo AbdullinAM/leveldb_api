@@ -20,6 +20,7 @@ public:
     const std::string DEFAULT_DB_NAME = "/tmp/leveldb-testbase";
     const std::string DEFAULT_SOCKET_NAME = "/tmp/leveldb-test-server-socket.soc";
     static const size_t DEFAULT_BUF_SIZE = 64 * 1024;
+
     static const size_t WIDTH = 8;
     static const size_t CMD_LENGTH = 3;
 

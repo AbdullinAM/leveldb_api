@@ -53,9 +53,7 @@ int monitorProcess() {
 }
 
 int main() {
-    leveldb_daemon::ipc::Server server;
-    server.work();
-    /*int pid = fork();
+    auto pid = fork();
 
     if (pid == -1) {
         return -1;
@@ -69,8 +67,8 @@ int main() {
         close(STDOUT_FILENO);
         close(STDERR_FILENO);
 
-        int status = monitorProcess();
+        auto status = monitorProcess();
 
         return status;
-    } else*/ return 0;
+    } else return 0;
 }

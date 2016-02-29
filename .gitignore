@@ -1,0 +1,8 @@
+.idea/
+CMakeFiles/
+headers/
+CMakeCache.txt
+*.cmake
+Makefile
+client
+leveldb_daemon

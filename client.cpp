@@ -11,8 +11,10 @@ int main() {
 
     leveldb_daemon::ipc::Client client(path);
 
-    client.put("datakey", "lol1", 4);
-    client.put("datakey2", "lol2", 4);
+    char val1[] = "lol1";
+    char val2[] = "lol2";
+    client.put("datakey", val1, 4);
+    client.put("datakey2", val2, 4);
 
     auto &&res = client.get("datakey");
 

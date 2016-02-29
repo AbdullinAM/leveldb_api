@@ -44,11 +44,11 @@ int Server::work() {
             client = server_.accept();
 
             while (true) {
-                std::string op;
-                op.resize(CMD_LENGTH);
-                *client >> op;
+                std::string cmd;
+                cmd.resize(CMD_LENGTH);
+                *client >> cmd;
 
-                if (op == endCmd()) {
+                if (cmd == endCmd()) {
                     client->shutdown();
                     delete client;
                     break;
@@ -62,16 +62,16 @@ int Server::work() {
                 key.resize(keySize);
                 *client >> key;
 
-                if (op == putCmd()) {
+                if (cmd == putCmd()) {
                     std::string dataSizeStr;
                     dataSizeStr.resize(WIDTH);
                     *client >> dataSizeStr;
                     auto dataSize = hexStringToInt(buffer_);
+                    if (dataSize > DEFAULT_BUF_SIZE) resizeBuffer(dataSize);
                     auto recvSize = client->rcv(buffer_, dataSize);
                     if (recvSize > DEFAULT_BUF_SIZE) resizeBuffer(recvSize);
 
                     leveldb::Slice data(buffer_, dataSize);
-
                     if (not db_.put(key, data)) {
                         log_.print("Error while putting data into db with key: " + key);
                         client->snd(failCmd().c_str(), CMD_LENGTH);
@@ -80,7 +80,7 @@ int Server::work() {
                     }
                     memset(buffer_, 0, dataSize);
 
-                } else if (op == getCmd()) {
+                } else if (cmd == getCmd()) {
                     auto&& it = db_.get(key);
                     while (it.valid()) {
                         auto&& size = intToHexString(it.value().size());
