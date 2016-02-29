@@ -2,9 +2,13 @@
 // Created by abdullin on 2/26/16.
 //
 
+#include <sstream>
+#include <unistd.h>
+
 #include "Server.h"
 
-namespace storage {
+namespace leveldb_daemon {
+namespace ipc {
 
 Server::Server() : db_(DB_NAME), server_(SOCKET_NAME) {
     buffer_ = new char[BUF_SIZE];
@@ -21,7 +25,7 @@ void Server::destroy() {
 }
 
 int Server::work() {
-    while(true) {
+    while (true) {
         std::string op, key;
         int key_size, data_size;
 
@@ -34,20 +38,21 @@ int Server::work() {
                 *client >> op;
 
                 if (op == "end") {
+                    client->shutdown();
                     delete client;
                     break;
                 }
 
-                int recv_key_size = client->rcv(buffer_, BUF_SIZE);
-                key_size = atoi(buffer_);
+                auto recv_key_size = client->rcv(buffer_, WIDTH);
+                key_size = hexStringToInt(buffer_);
                 memset(buffer_, 0, recv_key_size);
 
                 key.resize(key_size);
                 *client >> key;
 
                 if (op == "put") {
-                    int recv_data_size = client->rcv(buffer_, BUF_SIZE);
-                    data_size = atoi(buffer_);
+                    auto recv_data_size = client->rcv(buffer_, WIDTH);
+                    data_size = hexStringToInt(buffer_);
                     memset(buffer_, 0, recv_data_size);
 
                     client->rcv(buffer_, data_size);
@@ -59,11 +64,15 @@ int Server::work() {
                     memset(buffer_, 0, data_size);
 
                 } else if (op == "get") {
-                    auto &&it = db_.get(key, key);
+                    auto&& it = db_.get(key);
                     while (it.valid()) {
+                        auto&& size = intToHexString(it.value().size());
+                        client->snd(size.c_str(), size.length());
                         client->snd(it.value().data(), it.value().size());
                         it.next();
                     }
+                    auto&& size = intToHexString(3);
+                    client->snd(size.c_str(), size.length());
                     client->snd("end", 3);
                 }
             }
@@ -73,4 +82,28 @@ int Server::work() {
     }
 }
 
-}   /* namespace storage */
+std::string Server::intToHexString(const int num, unsigned int width) {
+    std::string res;
+    std::stringstream stream;
+    stream << std::hex << num;
+    stream >> res;
+    if (res.length() < width) {
+        std::string nulls(width - res.length(), '0');
+        res.insert(0, nulls);
+    } else if (res.length() > width) {
+        log_.print("Error: size of data is too big");
+        res = std::string(width, '0');
+    }
+    return res;
+}
+
+int Server::hexStringToInt(const char* str) {
+    std::stringstream stream;
+    stream << str;
+    int num;
+    stream >> std::hex >> num;
+    return num;
+}
+
+}   /* namespace ipc */
+}   /* namespace leveldb_daemon */

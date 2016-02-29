@@ -13,8 +13,7 @@
 
 #include "Logger.h"
 
-using namespace leveldb;
-
+namespace leveldb_daemon {
 namespace storage {
 
 class Database {
@@ -22,15 +21,15 @@ class Database {
 public:
 
     using Key = std::string;
-    using Value = Slice;
+    using Value = leveldb::Slice;
 
     class Iterator;
 
-    Database(const std::string& path);
+    Database(const std::string &path);
 
-    bool put(Key& key, Value value);
-    Value get(Key& key);
-    Iterator get(Key& from, Key& to);
+    bool put(const Key &key, Value value);
+
+    Iterator get(const Key &key);
 
 private:
 
@@ -46,10 +45,13 @@ class Database::Iterator {
 public:
 
     Iterator();
-    Iterator(leveldb::Iterator* it, const Key& limit);
+
+    Iterator(leveldb::Iterator *it, const Key &limit);
 
     void next();
+
     bool valid() const;
+
     Value value() const;
 
 private:
@@ -60,5 +62,6 @@ private:
 };
 
 }   /* namespace storage */
+}   /* namespace leveldb_daemon */
 
 #endif //LEVELDB_API_DATABASE_H

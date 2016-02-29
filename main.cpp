@@ -1,13 +1,13 @@
-#include <unistd.h>
-#include <sys/wait.h>
-#include <signal.h>
 #include <env.h>
+#include <signal.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "Server.h"
 
 int workProcess() {
-    storage::Server server;
+    leveldb_daemon::ipc::Server server;
     server.work();
     server.destroy();
     return 0;
@@ -18,7 +18,7 @@ int monitorProcess() {
     int pid, retval;
     sigset_t sigset;
     siginfo_t siginfo;
-    logging::Logger log;
+    leveldb_daemon::logging::Logger log;
 
     sigemptyset(&sigset);
     sigaddset(&sigset, SIGQUIT);        //process stopped by user
@@ -53,13 +53,11 @@ int monitorProcess() {
 }
 
 int main() {
-    storage::Server server;
+    leveldb_daemon::ipc::Server server;
     server.work();
     /*int pid = fork();
 
     if (pid == -1) {
-        logging::Logger log;
-        log.print("Error: Start Daemon failed");
         return -1;
     } else if (!pid) {
         umask(0);

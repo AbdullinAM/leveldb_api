@@ -4,6 +4,9 @@
 
 #include "Database.h"
 
+using namespace leveldb;
+
+namespace leveldb_daemon {
 namespace storage {
 
 Database::Database(const std::string &path) {
@@ -11,18 +14,18 @@ Database::Database(const std::string &path) {
     options.create_if_missing = true;
     options.compression = kNoCompression;
 
-    DB* cfg;
+    DB *db;
     logger_.print("Open database:" + path);
-    Status status = DB::Open(options, path, &cfg);
+    auto&& status = DB::Open(options, path, &db);
     if (not status.ok()) {
         logger_.print(status.ToString());
         exit(1);
     }
-    db_.reset(cfg);
+    db_.reset(db);
 }
 
-bool Database::put(std::string& key, Value value) {
-    Status status = db_->Put(WriteOptions(), Slice(key), Slice(value.data(), value.size()));
+bool Database::put(const std::string &key, Value value) {
+    auto&& status = db_->Put(WriteOptions(), Slice(key), Slice(value.data(), value.size()));
 
     if (not status.ok()) {
         logger_.print(status.ToString());
@@ -31,23 +34,16 @@ bool Database::put(std::string& key, Value value) {
     return status.ok();
 }
 
-Database::Value Database::get(Database::Key &key) {
+Database::Iterator Database::get(const Key &key) {
     auto&& it = db_->NewIterator(ReadOptions());
 
     it->Seek(Slice(key));
-    return it->value();
+    return Database::Iterator(it, key);
 }
 
-Database::Iterator Database::get(Key& from, Key& to) {
-    auto&& it = db_->NewIterator(ReadOptions());
+Database::Iterator::Iterator() : it_(nullptr) { }
 
-    it->Seek(Slice(from));
-    return Database::Iterator(it, to);
-}
-
-Database::Iterator::Iterator() : it_(nullptr) {}
-
-Database::Iterator::Iterator(leveldb::Iterator* it, const Key& limit) : it_(it), limit_(limit) {}
+Database::Iterator::Iterator(leveldb::Iterator *it, const Key &limit) : it_(it), limit_(limit) { }
 
 void Database::Iterator::next() {
     if (it_ && it_->Valid()) {
@@ -58,14 +54,13 @@ void Database::Iterator::next() {
 bool Database::Iterator::valid() const {
     if (not it_) return false;
 
-    const Slice limit(limit_);
-
-    return it_->Valid() && it_->key().starts_with(limit);
+    return it_->Valid() && it_->key().starts_with(Slice(limit_));
 }
 
 Database::Value Database::Iterator::value() const {
-    if (not it_) return Value();
+    if (not valid()) return Value();
     else return it_->value();
 }
 
 }   /* namespace storage */
+}   /* namespace leveldb_daemon */

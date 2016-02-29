@@ -5,44 +5,52 @@
 #ifndef LEVELDB_API_LOGGER_H
 #define LEVELDB_API_LOGGER_H
 
-#include <string>
+#include <ctime>
 #include <fstream>
 #include <iostream>
-#include <ctime>
+#include <string>
 
+namespace leveldb_daemon {
 namespace logging {
+
+static std::ostream& show_time(std::ostream& out) {
+    time_t time_val;
+    time(&time_val);
+
+    struct tm *local_time;
+    local_time = localtime(&time_val);
+
+    auto day = local_time->tm_mday;
+    auto month = local_time->tm_mon + 1;
+    auto year = local_time->tm_year + 1900;
+    auto hour = local_time->tm_hour;
+    auto minute = local_time->tm_min;
+    auto second = local_time->tm_sec;
+
+    out << "[" << year << "-" << month << "-" << day << " " << hour << ":" << minute << ":" << second << "] ";
+    return out;
+}
 
 class Logger {
 
 public:
 
-    Logger() {
-        logstream.open("leveldb-api.log", std::ios::app);
-    }
+    Logger() : Logger("/tmp/leveldb-api.log") { }
 
     Logger(const std::string& logfile) {
-        logstream.open(logfile);
+        logstream.open(logfile, std::ios::app);
     }
 
-    void print(const std::string& messg) {
-        time_t timev;
-        time(&timev);
-        printTime(timev);
-        logstream << messg << std::endl;
+    void print(const std::string& msg) {
+        logstream << show_time << msg << std::endl;
     }
 
-    void print(const char* messg) {
-        time_t timev;
-        time(&timev);
-        printTime(timev);
-        logstream << messg << std::endl;
+    void print(const char* msg) {
+        logstream << show_time << msg << std::endl;
     }
 
-    void print(const int messg) {
-        time_t timev;
-        time(&timev);
-        printTime(timev);
-        logstream << messg << std::endl;
+    void print(const int msg) {
+        logstream << show_time << msg << std::endl;
     }
 
     ~Logger() {
@@ -51,22 +59,11 @@ public:
 
 private:
 
-    void printTime(time_t time) {
-        struct tm* local_time;
-        local_time = localtime(&time);
-        int Day    = local_time->tm_mday;
-        int Month  = local_time->tm_mon + 1;
-        int Year   = local_time->tm_year + 1900;
-        int Hour   = local_time->tm_hour;
-        int Min    = local_time->tm_min;
-        int Sec    = local_time->tm_sec;
-        logstream << "[" << Year << "-" << Month << "-" << Day << " " << Hour << ":" << Min << ":" << Sec << "] ";
-    }
-
     std::ofstream logstream;
 
 };
 
 }   /* namespace logging */
+}   /* namespace leveldb_daemon */
 
 #endif //LEVELDB_API_LOGGER_H
