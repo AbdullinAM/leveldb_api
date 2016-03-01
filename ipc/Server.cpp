@@ -58,6 +58,7 @@ int Server::work() {
                 keySizeStr.resize(WIDTH);
                 *client >> keySizeStr;
                 auto keySize = hexStringToInt(keySizeStr);
+                if (keySize > buf_size_) resizeBuffer(keySize);
                 std::string key;
                 key.resize(keySize);
                 *client >> key;
@@ -67,9 +68,9 @@ int Server::work() {
                     dataSizeStr.resize(WIDTH);
                     *client >> dataSizeStr;
                     auto dataSize = hexStringToInt(buffer_);
-                    if (dataSize > DEFAULT_BUF_SIZE) resizeBuffer(dataSize);
+                    if (dataSize > buf_size_) resizeBuffer(dataSize);
                     auto recvSize = client->rcv(buffer_, dataSize);
-                    if (recvSize > DEFAULT_BUF_SIZE) resizeBuffer(recvSize);
+                    if (recvSize > buf_size_) resizeBuffer(recvSize);
 
                     leveldb::Slice data(buffer_, dataSize);
                     if (not db_.put(key, data)) {
