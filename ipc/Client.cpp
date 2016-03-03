@@ -10,7 +10,7 @@
 namespace leveldb_daemon {
 namespace ipc {
 
-Client::Client(std::string &server) : client_(server), log_(LOG_FILE) { }
+Client::Client(const std::string &server) : client_(server), log_(LOG_FILE) { }
 
 Client::~Client() {
     close();

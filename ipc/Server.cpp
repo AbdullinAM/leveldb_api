@@ -135,5 +135,8 @@ void Server::resizeBuffer(size_t size) {
     }
 }
 
+const std::string Server::DEFAULT_DB_NAME = "/tmp/leveldb-testbase";
+const std::string Server::DEFAULT_SOCKET_NAME = "/tmp/leveldb-test-server-socket.soc";
+
 }   /* namespace ipc */
 }   /* namespace leveldb_daemon */
