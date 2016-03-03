@@ -4,8 +4,6 @@ include_directories(./ ../)
 include_directories(/usr/include/leveldb)
 include_directories(libsocket/headers)
 
-link_directories(/usr/lib)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 project(leveldb_daemon)
@@ -29,8 +27,18 @@ target_link_libraries(leveldb_daemon leveldb)
 
 project(client)
 
-add_executable(client client.cpp ipc/Client.cpp)
+set(CLIENT_SOURCE_FILES
+        client.cpp
+        storage/Database.cpp
+        ipc/Server.cpp
+        ipc/Client.cpp
+        logging/Logger.h
+        serializer/Serializer.hpp
+        DB.hpp)
+
+add_executable(client ${CLIENT_SOURCE_FILES})
 
 add_dependencies(client socket++)
 
 target_link_libraries(client socket++)
+target_link_libraries(client leveldb)

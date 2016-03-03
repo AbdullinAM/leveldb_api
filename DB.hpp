@@ -5,26 +5,26 @@
 
 namespace leveldb_daemon {
 namespace db{
+
 template<class T>
 static bool write(const std::string& key, const T& obj) {
     auto byteStream = serializer::serializer<T>::serialize(obj);
-    ipc::Client client("/tmp/leveldb-test-server-socket.soc");
-    client.put(key, byteStream.array.get(),byteStream.size);
-    return true;
+    ipc::Client client(ipc::Server::DEFAULT_SOCKET_NAME);
+    return client.put(key, byteStream.array.get(),byteStream.size);
 };
 
-template<class ResT, class DataT, class Context>
+template<class ResT, class Context>
 static auto read(const std::string& key, Context& ctx) -> decltype(auto) {
-    //get bytesStream from DB
-    ipc::Client client("/tmp/leveldb-test-server-socket.soc");
-    auto serObj=client.get(key);
-    if (serObj.empty()) {
-        return serializer::deserializer<ResT, DataT, Context>::notFound();
+    ipc::Client client(ipc::Server::DEFAULT_SOCKET_NAME);
+    auto&& serializedData = client.get(key);
+    std::vector<ResT> result;
+    for (auto&& it: serializedData) {
+        std::shared_ptr<char> ptr(it.first);
+        serializer::Buffer value{ptr, it.second};
+        result.push_back(serializer::deserializer<ResT, serializer::Buffer, Context>::deserialize(value, ctx));
     }
-    else {
-        return serializer::deserializer<ResT, DataT, Context>::deserialize(serObj, ctx);
-    }
+    return result;
 };
 
-}
-}
+}   /* namespace db */
+}   /* namespace leveldb_daemon */

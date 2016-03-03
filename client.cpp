@@ -8,40 +8,42 @@
 #include "DB.hpp"
 
 
-struct serStr{
+struct serializableStruct {
     int k;
     std::string l;
-    serStr(int k1,std::string l1):k(k1),l(l1){}
-    serStr():k(0),l(){}
 
-    static leveldb_daemon::serializer::Buffer serialize(const serStr&){
+    serializableStruct() : k(0), l() {}
+    serializableStruct(int k1, const std::string& l1) : k(k1), l(l1) {}
+
+    static leveldb_daemon::serializer::Buffer serialize(const serializableStruct &){
         std::shared_ptr<char> l(new char);
-        memcpy(l.get(),"toJSON",6);
-        return {l,6};
+        memcpy(l.get(), "toJSON", 6);
+        return {l, 6};
     }
 
-    static serStr deserialize(const std::string& ser,const std::string& context){
-        auto&& s= serStr(3,ser);
+    static serializableStruct deserialize(const leveldb_daemon::serializer::Buffer& ser, const std::string& context) {
+        auto&& s = serializableStruct(3, ser.array.get());
         return s;
     }
 
-    static serStr notFound(){
-        return serStr();
+    static serializableStruct notFound() {
+        return serializableStruct();
     }
 
 };
 
 
 int main() {
+    serializableStruct s = {0, "lol"};
+    leveldb_daemon::db::write<serializableStruct>("key", s);
+    s.l = "asa";
+    leveldb_daemon::db::write<serializableStruct>("key1", s);
 
-    serStr s={0,"lol"};
-    leveldb_daemon::db::write<serStr>("key",s);
-
-    leveldb_daemon::ipc::Client client("/tmp/leveldb-test-server-socket.soc");
-
-    auto&& res = client.get("key");
-    for (auto&& it : res) {
-        std::cout << it.first << std::endl;
+    std::string ctx;
+    auto&& res = leveldb_daemon::db::read<serializableStruct, std::string>("key", ctx);
+    for (auto&& it: res) {
+        std::cout << it.l << std::endl;
     }
+
     return 0;
 }

@@ -35,10 +35,11 @@ Client::DataArray Client::get(const std::string& key) {
                 log_.print("Error: received data with negative length");
             }
             auto data = new char[size];
+            memset(data, 0, size);
             client_.rcv(data, size);
 
-            if (strcmp(data, endCmd().c_str()) == 0) {
-                delete data;
+            if (size == CMD_LENGTH && std::string(data, CMD_LENGTH) == endCmd()) {
+                delete []data;
                 break;
             }
 

@@ -90,8 +90,7 @@ int Server::work() {
                         it.next();
                     }
                     auto&& size = intToHexString(CMD_LENGTH);
-                    client->snd(size.c_str(), size.length());
-                    client->snd(endCmd().c_str(), CMD_LENGTH);
+                    *client << size << endCmd();
                 }
             }
         } catch (const libsocket::socket_exception& ex) {
