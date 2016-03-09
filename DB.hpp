@@ -4,7 +4,7 @@
 
 
 namespace leveldb_daemon {
-namespace db{
+namespace db {
 
 template<class T>
 static bool write(const std::string& key, const T& obj) {

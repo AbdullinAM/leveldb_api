@@ -16,7 +16,7 @@ struct serializableStruct {
     serializableStruct(int k1, const std::string& l1) : k(k1), l(l1) {}
 
     static leveldb_daemon::serializer::Buffer serialize(const serializableStruct &){
-        std::shared_ptr<char> l(new char);
+        std::shared_ptr<char[]> l(new char[6]);
         memcpy(l.get(), "toJSON", 6);
         return {l, 6};
     }
