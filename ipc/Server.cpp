@@ -67,7 +67,7 @@ int Server::work() {
                     std::string dataSizeStr;
                     dataSizeStr.resize(WIDTH);
                     *client >> dataSizeStr;
-                    auto dataSize = hexStringToInt(buffer_);
+                    auto dataSize = hexStringToInt(dataSizeStr);
                     if (dataSize > buf_size_) resizeBuffer(dataSize);
                     auto recvSize = client->rcv(buffer_, dataSize);
                     if (recvSize > buf_size_) resizeBuffer(recvSize);
