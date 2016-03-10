@@ -44,8 +44,6 @@ struct serializableStruct {
 
 
 int main() {
-
-
     std::string ctx;
     example::SerStr ser;
     serializableStruct s = {0, "lol"};
