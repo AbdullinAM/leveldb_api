@@ -4,9 +4,10 @@ include_directories(./ ../)
 include_directories(/usr/include/leveldb)
 include_directories(libsocket/headers)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -lprotobuf")
 
 project(leveldb_daemon)
+
 
 set(SOURCE_FILES
         main.cpp
@@ -27,6 +28,11 @@ target_link_libraries(leveldb_daemon leveldb)
 
 project(client)
 
+find_package(Protobuf)
+
+file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/*.proto")
+PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders ${ProtoFiles})
+
 set(CLIENT_SOURCE_FILES
         client.cpp
         storage/Database.cpp
@@ -34,7 +40,9 @@ set(CLIENT_SOURCE_FILES
         ipc/Client.cpp
         logging/Logger.h
         serializer/Serializer.hpp
-        DB.hpp)
+        DB.hpp
+        serStr.pb.cc
+        serStr.pb.h)
 
 add_executable(client ${CLIENT_SOURCE_FILES})
 
