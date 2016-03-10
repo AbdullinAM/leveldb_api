@@ -3,7 +3,6 @@
 //
 #include <iostream>
 #include <serializer/Serializer.hpp>
-#include <string.h>
 #include "ipc/Client.h"
 #include "DB.hpp"
 #include "serStr.pb.h"
@@ -29,7 +28,7 @@ struct serializableStruct {
         return {sp, serial.size()};
     }
 
-    static serializableStruct deserialize(const leveldb_daemon::serializer::Buffer& ser, const std::string& context) {
+    static serializableStruct deserialize(const leveldb_daemon::serializer::Buffer& ser, std::string ctx="") {
         example::SerStr des;
         std::string st="";
         for(int i=0;i<ser.size;++i){
@@ -38,6 +37,7 @@ struct serializableStruct {
         des.ParseFromString(st);
         return serializableStruct((int)des.k(),des.l());
     }
+
 
     static serializableStruct notFound() {
         return serializableStruct();
@@ -48,12 +48,17 @@ struct serializableStruct {
 
 int main() {
     std::string ctx;
-    example::SerStr ser;
     serializableStruct s = {666, "SERSTRING"};
     leveldb_daemon::db::write<serializableStruct>("key", s);
-    auto&& res = leveldb_daemon::db::read<serializableStruct, std::string>("key", ctx);
+    auto&& res = leveldb_daemon::db::read<serializableStruct>("key");
     for (auto&& it: res) {
         std::cout<<"Res="<<it.k<<" and "<<it.l<<"\n";
+    }
+    s = {777, "SERSTRING2"};
+    leveldb_daemon::db::write<serializableStruct>("yek", s);
+    res = leveldb_daemon::db::read<serializableStruct,std::string>("yek",ctx);
+    for (auto&& it: res) {
+        std::cout<<"Res2="<<it.k<<" and "<<it.l<<"\n";
     }
     return 0;
 }

@@ -14,7 +14,7 @@ struct Buffer{
 
 template<class T, class ResultT = char*> struct serializer;
 
-template<class ResultT, class SerializedT, class Context> struct deserializer;
+template<class ResultT, class SerializedT, class Context=std::string> struct deserializer;
 
 template<class T, class ResultT>
 struct serializer {
@@ -26,8 +26,11 @@ struct serializer {
 template<class ResultT, class SerializedT, class Context>
 struct deserializer {
 
-    static auto deserialize(const SerializedT& s, Context& ctx) -> decltype(auto) {
-        return ResultT::deserialize(s, ctx);
+    static auto deserialize(const SerializedT& s,Context& ctx) -> decltype(auto) {
+        return ResultT::deserialize(s,ctx);
+    }
+    static auto deserialize(const SerializedT& s) -> decltype(auto) {
+        return ResultT::deserialize(s);
     }
 
     static auto notFound() -> decltype(auto) {
