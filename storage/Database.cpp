@@ -34,11 +34,18 @@ bool Database::put(const std::string &key, Value value) {
     return status.ok();
 }
 
-Database::Iterator Database::get(const Key &key) {
+Database::Value Database::get(const Key &key) {
     auto&& it = db_->NewIterator(ReadOptions());
 
     it->Seek(Slice(key));
-    return Database::Iterator(it, key);
+    return it->value();
+}
+
+Database::Iterator Database::get(const Key& from, const Key& to) {
+    auto&& it = db_->NewIterator(ReadOptions());
+
+    it->Seek(Slice(from));
+    return Database::Iterator(it, to);
 }
 
 Database::Iterator::Iterator() : it_(nullptr) { }

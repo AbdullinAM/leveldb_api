@@ -17,6 +17,30 @@ template<class ResT, class Context>
 static auto read(const std::string& key, Context& ctx) -> decltype(auto) {
     ipc::Client client(ipc::Server::DEFAULT_SOCKET_NAME);
     auto&& serializedData = client.get(key);
+    std::shared_ptr<char> ptr(serializedData.first);
+    serializer::Buffer value{ptr, serializedData.second};
+    if (value.size < 1)
+        return serializer::deserializer<ResT, serializer::Buffer, Context>::notFound();
+    else
+        return serializer::deserializer<ResT, serializer::Buffer, Context>::deserialize(value, ctx);
+};
+
+template<class ResT>
+static auto read(const std::string& key) -> decltype(auto) {
+    ipc::Client client(ipc::Server::DEFAULT_SOCKET_NAME);
+    auto&& serializedData = client.get(key);
+    std::shared_ptr<char> ptr(serializedData.first);
+    serializer::Buffer value{ptr, serializedData.second};
+    if (value.size < 1)
+        return serializer::deserializer<ResT, serializer::Buffer>::notFound();
+    else
+        return serializer::deserializer<ResT, serializer::Buffer>::deserialize(value);
+};
+
+template<class ResT, class Context>
+static auto readAll(const std::string& key, Context& ctx) -> decltype(auto) {
+    ipc::Client client(ipc::Server::DEFAULT_SOCKET_NAME);
+    auto&& serializedData = client.getAll(key);
     std::vector<ResT> result;
     for (auto&& it: serializedData) {
         std::shared_ptr<char> ptr(it.first);
@@ -28,9 +52,9 @@ static auto read(const std::string& key, Context& ctx) -> decltype(auto) {
 
 
 template<class ResT>
-static auto read(const std::string& key) -> decltype(auto) {
+static auto readAll(const std::string& key) -> decltype(auto) {
     ipc::Client client(ipc::Server::DEFAULT_SOCKET_NAME);
-    auto&& serializedData = client.get(key);
+    auto&& serializedData = client.getAll(key);
     std::vector<ResT> result;
     for (auto&& it: serializedData) {
         std::shared_ptr<char> ptr(it.first);

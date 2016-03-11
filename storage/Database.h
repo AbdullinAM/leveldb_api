@@ -29,7 +29,8 @@ public:
 
     bool put(const Key &key, Value value);
 
-    Iterator get(const Key &key);
+    Value get(const Key& key);
+    Iterator get(const Key& from, const Key& to);
 
 private:
 

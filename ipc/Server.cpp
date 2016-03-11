@@ -81,8 +81,8 @@ int Server::work() {
                     }
                     memset(buffer_, 0, dataSize);
 
-                } else if (cmd == getCmd()) {
-                    auto&& it = db_.get(key);
+                } else if (cmd == getAllCmd()) {
+                    auto&& it = db_.get(key, key);
                     while (it.valid()) {
                         auto&& size = intToHexString(it.value().size());
                         client->snd(size.c_str(), size.length());
@@ -91,6 +91,11 @@ int Server::work() {
                     }
                     auto&& size = intToHexString(CMD_LENGTH);
                     *client << size << endCmd();
+                } else if (cmd == getOneCmd()) {
+                    auto&& val = db_.get(key);
+                    auto&& size = intToHexString(val.size());
+                    client->snd(size.c_str(), size.length());
+                    client->snd(val.data(), val.size());
                 }
             }
         } catch (const libsocket::socket_exception& ex) {

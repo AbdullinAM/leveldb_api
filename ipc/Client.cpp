@@ -16,11 +16,36 @@ Client::~Client() {
     close();
 }
 
-Client::DataArray Client::get(const std::string& key) {
+std::pair<char*, size_t> Client::get(const std::string& key) {
+    try {
+        client_ << getOneCmd();
+
+        auto keySize = intToHexString(key.length());
+        client_ << keySize << key;
+
+        std::string dataSize;
+        dataSize.resize(WIDTH);
+        client_ >> dataSize;
+
+        auto size = hexStringToInt(dataSize);
+        if (size < 0) {
+            log_.print("Error: received data with negative length");
+        }
+        auto data = new char[size];
+        memset(data, 0, size);
+        client_.rcv(data, size);
+
+        return {data, size};
+    } catch (const libsocket::socket_exception& exc) {
+        log_.print(exc.mesg);
+    }
+}
+
+Client::DataArray Client::getAll(const std::string &key) {
     DataArray result;
 
     try {
-        client_ << getCmd();
+        client_ << getAllCmd();
 
         auto keySize = intToHexString(key.length());
         client_ << keySize << key;

@@ -50,15 +50,22 @@ int main() {
     std::string ctx;
     serializableStruct s = {666, "SERSTRING"};
     leveldb_daemon::db::write<serializableStruct>("key", s);
-    auto&& res = leveldb_daemon::db::read<serializableStruct>("key");
+    auto&& value = leveldb_daemon::db::read<serializableStruct>("key");
+    std::cout << "Result of reading one: " << value.k << " and " << value.l << std::endl;
+
+    auto&& res = leveldb_daemon::db::readAll<serializableStruct>("key");
+    std::cout << "Result of reading all by \"key\":" << std::endl;
     for (auto&& it: res) {
-        std::cout<<"Res="<<it.k<<" and "<<it.l<<"\n";
+        std::cout << it.k << it.l << std::endl;
     }
+
     s = {777, "SERSTRING2"};
-    leveldb_daemon::db::write<serializableStruct>("yek", s);
-    res = leveldb_daemon::db::read<serializableStruct,std::string>("yek",ctx);
+    leveldb_daemon::db::write<serializableStruct>("key2", s);
+
+    res = leveldb_daemon::db::readAll<serializableStruct,std::string>("key2",ctx);
+    std::cout << "Result of reading all by \"key2\":" << std::endl;
     for (auto&& it: res) {
-        std::cout<<"Res2="<<it.k<<" and "<<it.l<<"\n";
+        std::cout << it.k << it.l << std::endl;
     }
     return 0;
 }

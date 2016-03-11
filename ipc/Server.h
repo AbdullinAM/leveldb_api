@@ -35,7 +35,8 @@ public:
 private:
 
     std::string putCmd() const      { return "put"; }
-    std::string getCmd() const      { return "get"; }
+    std::string getAllCmd() const   { return "gta"; }
+    std::string getOneCmd() const   { return "gto"; }
     std::string endCmd() const      { return "end"; }
     std::string successCmd() const  { return "ok_"; }
     std::string failCmd() const     { return "nok"; }

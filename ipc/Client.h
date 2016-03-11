@@ -27,14 +27,16 @@ public:
     Client(const std::string& server);
     ~Client();
 
-    DataArray get(const std::string& key);
+    std::pair<char*, size_t> get(const std::string& key);
+    DataArray getAll(const std::string& key);
     bool put(const std::string& key, char* data, size_t size);
     void close();
 
 private:
 
     std::string putCmd() const      { return "put"; }
-    std::string getCmd() const      { return "get"; }
+    std::string getAllCmd() const   { return "gta"; }
+    std::string getOneCmd() const   { return "gto"; }
     std::string endCmd() const      { return "end"; }
     std::string successCmd() const  { return "ok_"; }
     std::string failCmd() const     { return "nok"; }
