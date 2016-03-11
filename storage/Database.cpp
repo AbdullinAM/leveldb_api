@@ -38,7 +38,10 @@ Database::Value Database::get(const Key &key) {
     auto&& it = db_->NewIterator(ReadOptions());
 
     it->Seek(Slice(key));
-    return it->value();
+    if (it->Valid())
+        return it->value();
+    else
+        return Value();
 }
 
 Database::Iterator Database::get(const Key& from, const Key& to) {

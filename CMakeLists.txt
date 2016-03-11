@@ -41,8 +41,7 @@ set(CLIENT_SOURCE_FILES
         logging/Logger.h
         serializer/Serializer.hpp
         DB.hpp
-        serStr.pb.cc
-        serStr.pb.h)
+        ${ProtoSources})
 
 add_executable(client ${CLIENT_SOURCE_FILES})
 
