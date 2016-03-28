@@ -6,5 +6,4 @@ CMakeCache.txt
 Makefile
 client
 leveldb_daemon
-*.pb.cc
-*.pb.h
+*.a

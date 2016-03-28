@@ -6,15 +6,17 @@
 
 #include "ipc/Server.h"
 
-int workProcess() {
-    leveldb_daemon::ipc::Server server;
+const std::string DAEMON_FILE_PATH = "/tmp/leveldb_daemon_started";
+
+int workProcess(const std::string& db_name, const std::string& socket_name) {
+    leveldb_daemon::ipc::Server server(db_name, socket_name);
     server.work();
     server.destroy();
     return 0;
 }
 
 
-int monitorProcess() {
+int monitorProcess(const std::string& db_name, const std::string& socket_name) {
     int pid, retval;
     sigset_t sigset;
     siginfo_t siginfo;
@@ -35,7 +37,12 @@ int monitorProcess() {
         if (pid == -1) {
             log.print("[MONITOR] Fork failed \n");
         } else if (not pid) {
-            retval = workProcess();
+            retval = workProcess(db_name, socket_name);
+
+            if (std::remove(DAEMON_FILE_PATH.c_str()) != 0) {
+                log.print("error while deleting daemon file");
+            }
+
             exit(retval);
         } else {
             sigwaitinfo(&sigset, &siginfo);
@@ -45,6 +52,11 @@ int monitorProcess() {
             } else {
                 kill(pid, SIGKILL);
                 retval = 0;
+
+                if (std::remove(DAEMON_FILE_PATH.c_str()) != 0) {
+                    log.print("error while deleting daemon file");
+                }
+
                 break;
             }
         }
@@ -52,12 +64,15 @@ int monitorProcess() {
     return retval;
 }
 
-int main() {
+int main(int argc, char** argv) {
+    if (argc < 3) return -1;
+    std::string db_name(argv[1]), socket_name(argv[2]);
+
     auto pid = fork();
 
     if (pid == -1) {
         return -1;
-    } else if (!pid) {
+    } else if (not pid) {
         umask(0);
         setsid();
 
@@ -67,8 +82,14 @@ int main() {
         close(STDOUT_FILENO);
         close(STDERR_FILENO);
 
-        auto status = monitorProcess();
+        auto status = monitorProcess(db_name, socket_name);
 
         return status;
-    } else return 0;
+    } else {
+        std::ofstream file;
+        file.open(DAEMON_FILE_PATH);
+        file << pid << std::endl;
+        file.close();
+        return 0;
+    }
 }
