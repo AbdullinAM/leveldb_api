@@ -53,6 +53,7 @@ int Server::work() {
                 std::string cmd;
                 cmd.resize(CMD_LENGTH);
                 *client >> cmd;
+                log_.print("Received cmd: " + cmd);
 
                 if (cmd == endCmd()) {
                     client->shutdown();
@@ -68,6 +69,7 @@ int Server::work() {
                 std::string key;
                 key.resize(keySize);
                 *client >> key;
+                log_.print("Received key: " + key);
 
                 if (cmd == putCmd()) {
                     std::string dataSizeStr;
@@ -75,8 +77,21 @@ int Server::work() {
                     *client >> dataSizeStr;
                     auto dataSize = hexStringToInt(dataSizeStr);
                     if (dataSize > buf_size_) resizeBuffer(dataSize);
-                    auto recvSize = client->rcv(buffer_, dataSize);
-                    if (recvSize > buf_size_) resizeBuffer(recvSize);
+
+                    auto totalRecvd = 0;
+                    log_.print("Receiving data with size: " + dataSizeStr);
+                    while (totalRecvd < dataSize) {
+                        auto recvSize = client->rcv(buffer_ + totalRecvd, dataSize - totalRecvd);
+                        if (recvSize < 0) {
+                            log_.print("Error while receiving");
+                            log_.print("Received data:");
+                            log_.print(totalRecvd);
+                            break;
+                        }
+                        totalRecvd += recvSize;
+                    }
+                    log_.print("Received");
+
 
                     leveldb::Slice data(buffer_, dataSize);
                     if (not db_.put(key, data)) {
@@ -97,11 +112,21 @@ int Server::work() {
                     }
                     auto&& size = intToHexString(CMD_LENGTH);
                     *client << size << endCmd();
+
                 } else if (cmd == getOneCmd()) {
                     auto&& val = db_.get(key);
                     auto&& size = intToHexString(val.size());
                     client->snd(size.c_str(), size.length());
-                    client->snd(val.data(), val.size());
+                    if (val.size() > 0) {
+                        client->snd(val.data(), val.size());
+                    }
+
+                } else {
+                    log_.print("Unknown command from client: " + cmd);
+                    log_.print("Disconnecting current client");
+                    client->shutdown();
+                    delete client;
+                    break;
                 }
             }
         } catch (const libsocket::socket_exception& ex) {

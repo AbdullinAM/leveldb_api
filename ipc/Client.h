@@ -43,11 +43,13 @@ private:
 
     std::string intToHexString(const int num, const size_t width = WIDTH);
     int hexStringToInt(const std::string& str);
+    bool receiveData(char *buffer, size_t size);
 
 private:
 
     libsocket::unix_stream_client client_;
     logging::Logger log_;
+    bool opened_;
 
 };
 
