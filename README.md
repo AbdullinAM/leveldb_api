@@ -1,4 +1,4 @@
-# Leveldb_API 
+# LevelDB_API 
 
 Leveldb_API is a library for sharing LevelDB database between multiple processes. Project consists of UNIX-daemon server, which directly communicates with the database, and static library for connecting to server. Project uses [libsocket](https://github.com/AbdullinAM/libsocket.git) library for data transfer.
 
