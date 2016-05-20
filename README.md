@@ -9,10 +9,10 @@ Library was developed to store serialized objects in DB. So, it only supports `s
 Library API defined in include/DB.hpp file. File contains DB class with following methods: 
 * `getInstance()` - get instance of DB class
 * `isDaemonStarted()` - check the status of server (started or not)
-* `setSocket(const std::string& socket_name)` - configure DB instance to used socket
+* `setSocket(const std::string& socket_name)` - set socket name to DB instance
 * `lock()` - lock server
 * `unlock()` - unlock server
-* `write(const std::string& key, const T& obj)` -write object to DB
+* `write(const std::string& key, const T& obj)` - write object to DB
 * `read(const std::string& key)` - get value from DB
 * `read(const std::string& key, Context& ctx)` - same, but when deserialization need context
 * `readAll(const std::string& key)` - get all values, which keys starts with "key" string
