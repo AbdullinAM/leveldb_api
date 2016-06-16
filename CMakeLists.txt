@@ -5,6 +5,9 @@ include_directories(/usr/include/leveldb)
 include_directories(libsocket/headers)
 add_subdirectory(libsocket)
 
+set(LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/lib)
+
 #daemon executable
 project(leveldb_daemon)
 
